@@ -8,7 +8,7 @@
   "servers": [
     {
       "url": "https://api-mnhbogxrsa-uc.a.run.app",
-      "description": "Production"
+      "description": "Base URL"
     }
   ],
   "tags": [
@@ -40,6 +40,96 @@
       }
     },
     "schemas": {
+      "TransactionStatusResponse": {
+        "type": "object",
+        "required": [
+          "amount",
+          "currency",
+          "final_status",
+          "order_id",
+          "transaction_id",
+          "payer_number",
+          "response_code",
+          "response_message",
+          "narration"
+        ],
+        "properties": {
+          "amount": {
+            "type": "string",
+            "example": "1"
+          },
+          "currency": {
+            "type": "string",
+            "example": "ZMW"
+          },
+          "final_status": {
+            "type": "integer",
+            "description": "Transaction final status code. 270 = IP is not allowed. 300 = Transaction completed successfully. 301 = Transaction failed. 303 = Ambiguous Transaction. 289 = An unknown error occurred.",
+            "example": 301
+          },
+          "order_id": {
+            "type": "string",
+            "description": "Client external unique id (external_reference).",
+            "example": ""
+          },
+          "transaction_id": {
+            "type": "string",
+            "description": "PrimePay transaction id.",
+            "example": ""
+          },
+          "payer_number": {
+            "type": "string",
+            "description": "Mobile number of the wallet debited.",
+            "example": "260973936164"
+          },
+          "response_code": {
+            "type": "integer",
+            "description": "Transaction status code.",
+            "example": 200
+          },
+          "response_message": {
+            "type": "string",
+            "description": "Transaction status description.",
+            "example": "Transaction failed"
+          },
+          "username": {
+            "type": "string",
+            "description": "Client username (may be included in responses/callbacks).",
+            "example": ""
+          },
+          "password": {
+            "type": "string",
+            "description": "Client password (may be included in responses/callbacks).",
+            "example": ""
+          },
+          "account_number": {
+            "type": "string",
+            "description": "Transaction account number.",
+            "example": ""
+          },
+          "narration": {
+            "type": "string",
+            "description": "Client's transaction description.",
+            "example": "Lorem ipsum"
+          }
+        },
+        "additionalProperties": true,
+        "example": {
+          "amount": "1",
+          "currency": "ZMW",
+          "final_status": 301,
+          "order_id": "380613032205PPR10000",
+          "transaction_id": "CCT390813032205P10301",
+          "payer_number": "260973936164",
+          "account_number": "260973936164",
+          "username": "XXXXXX",
+          "password": "XXXXXX",
+          "response_code": 200,
+          "response_message": "Transaction failed",
+          "account_number ": "TESTACC",
+          "narration ": "Lorem ipsum"
+        }
+      },
       "CallbackRegistrationRequest": {
         "type": "object",
         "required": [
@@ -328,7 +418,7 @@
           "Register Callback"
         ],
         "summary": "Register a callback URL request",
-        "description": "You can use to endpoint to register a callback URL for transaction status updates.\n",
+        "description": "You can use this endpoint to register a callback URL for transaction status updates.\n The callback URL must be publicly accessible. It will be called via HTTP POST. The payload will be a JSON object of type TransactionStatusResponse.",
         "security": [
           {
             "basicAuth": []
