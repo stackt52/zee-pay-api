@@ -20,7 +20,7 @@ export interface TransactionStatus {
   password?: string;
   account_number?: string;
   narration: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface MessageResponse {
@@ -30,8 +30,8 @@ export interface MessageResponse {
 export interface UnauthorizedResponse {
   statusCode: number;
   message: string;
-  clientId?: any;
-  services?: any;
+  clientId?: unknown;
+  services?: unknown;
 }
 
 export interface ErrorResponse {
