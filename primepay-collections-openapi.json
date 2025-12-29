@@ -40,7 +40,7 @@
       }
     },
     "schemas": {
-      "TransactionStatusResponse": {
+      "TransactionStatus": {
         "type": "object",
         "required": [
           "amount",
@@ -227,69 +227,6 @@
           "message": "Duplicate external id"
         }
       },
-      "TransactionStatus": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "string",
-            "example": "1"
-          },
-          "currency": {
-            "type": "string",
-            "example": "ZMW"
-          },
-          "final_status": {
-            "type": "integer",
-            "description": "Transaction final status code.",
-            "example": 301
-          },
-          "order_id": {
-            "type": "string",
-            "description": "Client external unique id (external_reference).",
-            "example": "380613032205PPR10000"
-          },
-          "transaction_id": {
-            "type": "string",
-            "description": "PrimePay transaction id.",
-            "example": "CCT390813032205P10301"
-          },
-          "payer_number": {
-            "type": "string",
-            "example": "260973936164"
-          },
-          "response_code": {
-            "type": "integer",
-            "description": "Transaction status code.",
-            "example": 200
-          },
-          "response_message": {
-            "type": "string",
-            "description": "Transaction status description.",
-            "example": "Transaction id is invalid"
-          },
-          "username": {
-            "type": "string",
-            "description": "Client username (may be included in responses/callbacks).",
-            "example": "XXXXXX"
-          },
-          "password": {
-            "type": "string",
-            "description": "Client password (may be included in responses/callbacks).",
-            "example": "XXXXXX"
-          },
-          "account_number": {
-            "type": "string",
-            "description": "Transaction account number.",
-            "example": "TESTACC"
-          },
-          "narration": {
-            "type": "string",
-            "description": "Client's transaction description.",
-            "example": "Lorem ipsum"
-          }
-        },
-        "additionalProperties": true
-      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -418,7 +355,7 @@
           "Register Callback"
         ],
         "summary": "Register a callback URL request",
-        "description": "You can use this endpoint to register a callback URL for transaction status updates.\n The callback URL must be publicly accessible. It will be called via HTTP POST. The payload will be a JSON object of type TransactionStatusResponse.",
+        "description": "You can use this endpoint to register a callback URL for transaction status updates.\n The callback URL must be publicly accessible. It will be called via HTTP POST. The payload will be a JSON object of type 'TransactionStatus'.",
         "security": [
           {
             "basicAuth": []
