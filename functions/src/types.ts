@@ -7,6 +7,11 @@ export interface CollectRequest {
   account_number?: string | null;
 }
 
+export interface StatusCode {
+  code: number;
+  message: string;
+}
+
 export interface TransactionStatus {
   amount: string;
   currency: string;

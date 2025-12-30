@@ -18,7 +18,7 @@ import cors from "cors";
 import {
   CollectRequest,
   TransactionStatus,
-  CallbackRegistrationRequest,
+  CallbackRegistrationRequest, StatusCode,
 } from "./types";
 
 admin.initializeApp();
@@ -27,6 +27,15 @@ const db = admin.firestore();
 const app = express();
 app.use(cors({origin: true}));
 app.use(express.json());
+
+
+const transactionStatuses: StatusCode[] = [
+  {code: 300, message: "Transaction successful"},
+  {code: 301, message: "Transaction failed"}
+  // { code: 270, message: "IP is not allowed"},
+  // { code: 303, message: "Ambiguous Transaction"},
+  // { code: 289, message: "An unknown error occurred"},
+];
 
 // Simple Auth Middleware
 const authMiddleware = (
@@ -87,16 +96,20 @@ app.post("/api/v2/transaction/collect", async (req: Request, res: Response) => {
     // Generate a mock transaction_id
     const transactionId = "CCT" + Date.now().toString();
 
+    // Randomly select a final status
+    const randomStatus = transactionStatuses[
+      Math.floor(Math.random() * transactionStatuses.length)];
+
     // Prepare initial transaction status
     const transaction: TransactionStatus = {
       amount: body.amount,
       currency: body.currency,
-      final_status: 100, // Assuming 100 as pending/received
+      final_status: randomStatus.code,
       order_id: body.external_reference,
       transaction_id: transactionId,
       payer_number: body.payer_number,
       response_code: 202,
-      response_message: "request received for processing successfully",
+      response_message: randomStatus.message,
       account_number: body.account_number || "N/A",
       narration: body.payment_narration,
     };
@@ -194,7 +207,7 @@ export const onTransactionCreated = onDocumentCreated(
     await new Promise((resolve) => setTimeout(resolve, 60000));
 
     try {
-    // Get the registered callback URL
+      // Get the registered callback URL
       const callbackDoc = await db
         .collection("callbacks")
         .doc("client_default")
@@ -228,7 +241,7 @@ export const onTransactionCreated = onDocumentCreated(
       } else {
         logger.error(
           `Failed to send callback to ${callbackUrl}. ` +
-            `Status: ${response.status}`
+          `Status: ${response.status}`
         );
       }
     } catch (error) {
