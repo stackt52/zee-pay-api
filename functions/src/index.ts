@@ -13,6 +13,8 @@ import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import express, {Request, Response} from "express";
+import cors from "cors";
+
 import {
   CollectRequest,
   TransactionStatus,
@@ -23,6 +25,7 @@ admin.initializeApp();
 const db = admin.firestore();
 
 const app = express();
+app.use(cors({origin: true}));
 app.use(express.json());
 
 // Simple Auth Middleware
@@ -233,4 +236,4 @@ export const onTransactionCreated = onDocumentCreated(
     }
   });
 
-export const api = onRequest(app);
+export const api = onRequest({cors: false}, app);

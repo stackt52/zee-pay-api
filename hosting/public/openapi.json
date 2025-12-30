@@ -349,7 +349,7 @@
         }
       }
     },
-    "/api/v2/transaction/register": {
+    "/api/v2/callback/register": {
       "post": {
         "tags": [
           "Register Callback"
