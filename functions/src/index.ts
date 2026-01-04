@@ -28,15 +28,6 @@ const app = express();
 app.use(cors({origin: true}));
 app.use(express.json());
 
-
-const transactionStatuses: StatusCode[] = [
-  {code: 300, message: "Transaction successful"},
-  {code: 301, message: "Transaction failed"}
-  // { code: 270, message: "IP is not allowed"},
-  // { code: 303, message: "Ambiguous Transaction"},
-  // { code: 289, message: "An unknown error occurred"},
-];
-
 // Simple Auth Middleware
 const authMiddleware = (
   req: Request,
@@ -96,22 +87,29 @@ app.post("/api/v2/transaction/collect", async (req: Request, res: Response) => {
     // Generate a mock transaction_id
     const transactionId = "CCT" + Date.now().toString();
 
-    // Randomly select a final status
-    const randomStatus = transactionStatuses[
-      Math.floor(Math.random() * transactionStatuses.length)];
+    // Determine final status based on query parameter
+    const statusQuery = req.query.status;
+    let finalStatus: StatusCode;
+
+    if (statusQuery === "success") {
+      finalStatus = {code: 300, message: "Transaction successful"};
+    } else {
+      finalStatus = {code: 301, message: "Transaction failed"};
+    }
 
     // Prepare initial transaction status
     const transaction: TransactionStatus = {
       amount: body.amount,
       currency: body.currency,
-      final_status: randomStatus.code,
+      final_status: finalStatus.code,
       order_id: body.external_reference,
       transaction_id: transactionId,
       payer_number: body.payer_number,
       response_code: 202,
-      response_message: randomStatus.message,
+      response_message: finalStatus.message,
       account_number: body.account_number || "N/A",
       narration: body.payment_narration,
+      callback_sent: false,
     };
 
     // Persist to Firestore
@@ -146,7 +144,14 @@ app.get(
         return;
       }
 
-      const transaction = querySnapshot.docs[0].data();
+      const transaction = querySnapshot.docs[0].data() as TransactionStatus;
+
+      // Check if callback has been sent
+      if (!transaction.callback_sent) {
+        res.status(404).json({message: "Not found"});
+        return;
+      }
+
       res.status(200).json(transaction);
     } catch (error) {
       logger.error("Error in fetch-status endpoint", error);
@@ -203,8 +208,8 @@ export const onTransactionCreated = onDocumentCreated(
       "Waiting 1 minute before sending callback..."
     );
 
-    // Wait for 1 minute
-    await new Promise((resolve) => setTimeout(resolve, 60000));
+    // Wait for 15 seconds
+    await new Promise((resolve) => setTimeout(resolve, 15000));
 
     try {
       // Get the registered callback URL
@@ -244,6 +249,11 @@ export const onTransactionCreated = onDocumentCreated(
           `Status: ${response.status}`
         );
       }
+
+      // Mark callback as sent in the transaction document
+      await db.collection("transactions")
+        .doc(event.params.transactionId)
+        .update({callback_sent: true});
     } catch (error) {
       logger.error("Error sending callback", error);
     }

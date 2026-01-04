@@ -25,6 +25,7 @@ export interface TransactionStatus {
   password?: string;
   account_number?: string;
   narration: string;
+  callback_sent?: boolean;
   [key: string]: unknown;
 }
 
