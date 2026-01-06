@@ -18,7 +18,7 @@ import cors from "cors";
 import {
   CollectRequest,
   TransactionStatus,
-  CallbackRegistrationRequest, StatusCode,
+  CallbackRegistrationRequest, StatusCode, TransactionUpdate,
 } from "./types";
 
 admin.initializeApp();
@@ -27,6 +27,30 @@ const db = admin.firestore();
 const app = express();
 app.use(cors({origin: true}));
 app.use(express.json());
+
+/**
+ * POST /api/v2/transaction/updates
+ * Receive a transaction payload and store it in Firestore
+ */
+app.post("/api/v2/transaction/updates", async (req: Request, res: Response) => {
+  try {
+    const body: TransactionUpdate = req.body;
+
+    if (!body.order_id) {
+      res.status(400).json({message: "Missing order_id"});
+      return;
+    }
+
+    // Store the payload in transaction_updates collection
+    // Document name should be order_id
+    await db.collection("transaction_updates").doc(body.order_id).set(body);
+
+    res.status(200).json({message: "Transaction update stored successfully"});
+  } catch (error) {
+    logger.error("Error in transaction updates endpoint", error);
+    res.status(500).json({message: "Internal server error"});
+  }
+});
 
 // Simple Auth Middleware
 const authMiddleware = (
@@ -48,6 +72,30 @@ const authMiddleware = (
   }
   next();
 };
+
+/**
+ * POST /api/v2/transaction/updates
+ * Receive a transaction payload and store it in Firestore
+ */
+app.post("/api/v2/transaction/updates", async (req: Request, res: Response) => {
+  try {
+    const body: TransactionUpdate = req.body;
+
+    if (!body.order_id) {
+      res.status(400).json({message: "Missing order_id"});
+      return;
+    }
+
+    // Store the payload in transaction_updates collection
+    // Document name should be order_id
+    await db.collection("transaction_updates").doc(body.order_id).set(body);
+
+    res.status(200).json({message: "Transaction update stored successfully"});
+  } catch (error) {
+    logger.error("Error in transaction updates endpoint", error);
+    res.status(500).json({message: "Internal server error"});
+  }
+});
 
 app.use(authMiddleware);
 
@@ -146,7 +194,7 @@ app.get(
 
       const transaction = querySnapshot.docs[0].data() as TransactionStatus;
 
-      // Check if callback has been sent
+      // Check if a callback has been sent
       if (!transaction.callback_sent) {
         res.status(404).json({message: "Not found"});
         return;
@@ -160,7 +208,7 @@ app.get(
   });
 
 /**
- * POST /api/v2/callback/register
+ * POST /api/v2/callback/register.
  * Register a callback URL for transaction notifications
  */
 app.post("/api/v2/callback/register", async (req: Request, res: Response) => {
@@ -175,7 +223,7 @@ app.post("/api/v2/callback/register", async (req: Request, res: Response) => {
     // Store the callback URL in Firestore.
     // For this mock, we'll use a fixed document ID "client_default".
     // Since we don't have a full client management system yet,
-    // we'll store it under "client_callbacks" collection.
+    // we'll store it under the "client_callbacks" collection.
     // To keep it simple as requested, we just store it.
     await db.collection("callbacks").doc("client_default").set({
       callback_url: body.callback_url,

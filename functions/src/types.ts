@@ -47,3 +47,19 @@ export interface ErrorResponse {
 export interface CallbackRegistrationRequest {
   callback_url: string;
 }
+
+export interface TransactionUpdate {
+  amount: string;
+  currency: string;
+  final_status: number;
+  order_id: string;
+  transaction_id: string;
+  payer_number: string;
+  account_number: string;
+  username: string;
+  password: string;
+  response_code: number;
+  response_message: string;
+  "account_number ": string;
+  "narration ": string;
+}
